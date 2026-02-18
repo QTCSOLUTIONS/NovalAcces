@@ -249,12 +249,12 @@ const Dashboard: React.FC = () => {
       {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 py-6 bg-black/20 mt-auto">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-[8px] text-gray-600 font-bold tracking-[0.4em] uppercase">
-            POWER BI QTC-SOLUTIONS COPYRIGHT 2026
+          <p className="text-[10px] text-white/80 font-bold tracking-[0.2em] uppercase">
+            POWERED BY QTC-SOLUTIONS | COPYRIGHT © 2026
           </p>
           <div className="flex gap-6">
-            <span className="text-[8px] text-gray-500 tracking-[0.2em] hover:text-white cursor-pointer transition-colors uppercase">Soporte</span>
-            <span className="text-[8px] text-gray-500 tracking-[0.2em] hover:text-white cursor-pointer transition-colors uppercase">Privacidad</span>
+            <span className="text-[10px] text-white/60 tracking-[0.2em] hover:text-white cursor-pointer transition-colors uppercase">Soporte</span>
+            <span className="text-[10px] text-white/60 tracking-[0.2em] hover:text-white cursor-pointer transition-colors uppercase">Privacidad</span>
           </div>
         </div>
       </footer>
