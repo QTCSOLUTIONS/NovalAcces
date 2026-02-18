@@ -5,9 +5,7 @@ import {
   Package,
   Briefcase,
   Bell,
-  FileText,
   Lock, // Lock is still used in AppCard
-  Search,
   ChevronRight,
   Menu,
   X,
@@ -24,13 +22,6 @@ interface AppItem {
   gradient: string;
   url?: string;
   disabled?: boolean;
-}
-
-interface AlertItem {
-  id: number;
-  title: string;
-  time: string;
-  type: 'urgent' | 'info' | 'success';
 }
 
 // --- Components ---
@@ -83,14 +74,23 @@ const AppCard: React.FC<{ item: AppItem }> = ({ item }) => {
       <p className="text-sm text-slate-500 leading-relaxed mb-4">{item.description}</p>
 
       <div className={`flex items-center text-xs font-semibold text-slate-400 ${!item.disabled && 'group-hover:text-amber-600'} transition-colors`}>
-        <span>{item.disabled ? 'EN DESARROLLO' : 'ABRIR APLICACIÓN'}</span>
+        <span>{item.disabled ? '' : 'ABRIR APLICACIÓN'}</span>
       </div>
+
+      {/* Disabled Overlay */}
+      {item.disabled && (
+        <div className="absolute inset-0 bg-white/60 backdrop-blur-[1px] flex items-center justify-center z-10 rounded-2xl">
+          <div className="bg-slate-900 text-white px-4 py-2 rounded-lg font-bold text-sm shadow-xl transform -rotate-6 border border-slate-700">
+            EN DESARROLLO
+          </div>
+        </div>
+      )}
     </>
   );
 
   if (item.disabled) {
     return (
-      <div className="group relative bg-slate-50 rounded-2xl p-6 shadow-sm border border-slate-200 opacity-60 cursor-not-allowed overflow-hidden grayscale-[0.8]">
+      <div className="group relative bg-slate-50 rounded-2xl p-6 shadow-sm border border-slate-200 cursor-not-allowed overflow-hidden">
         {CardContent}
       </div>
     );
@@ -107,16 +107,6 @@ const AppCard: React.FC<{ item: AppItem }> = ({ item }) => {
     </a>
   );
 };
-
-const SidebarWidget: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
-  <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-    <div className="flex items-center space-x-2 mb-6 border-b border-slate-50 pb-4">
-      <div className="text-slate-900">{icon}</div>
-      <h3 className="text-sm font-bold text-slate-800 uppercase tracking-wider">{title}</h3>
-    </div>
-    {children}
-  </div>
-);
 
 const Dashboard: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -160,41 +150,15 @@ const Dashboard: React.FC = () => {
     },
   ];
 
-  const alerts: AlertItem[] = [
-    { id: 1, title: 'Mantenimiento del Servidor programado para el viernes 22:00 EST', time: 'hace 2 horas', type: 'info' },
-    { id: 2, title: 'Urgente: Enviar Informes de Gastos del Q3 antes de las 5 PM', time: 'hace 4 horas', type: 'urgent' },
-    { id: 3, title: 'Nuevos protocolos de seguridad actualizados para el Sitio B', time: 'hace 1 día', type: 'success' },
-  ];
-
-  const docs = [
-    { title: 'Manual del Empleado 2024', size: '2.4 MB' },
-    { title: 'Guías de Seguridad TI', size: '1.1 MB' },
-    { title: 'Calendario de Festivos', size: '0.5 MB' },
-  ];
-
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header */}
       <header className="bg-white border-b border-slate-200 sticky top-0 z-30">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20"> {/* Aumenté un poco la altura para el logo */}
+          <div className="flex justify-between items-center h-20">
             {/* Logo */}
             <div className="flex items-center">
               <NovalLogo size="small" />
-            </div>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex flex-1 items-center justify-center px-8">
-              <div className="relative w-full max-w-md">
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <Search className="h-4 w-4 text-slate-400" />
-                </div>
-                <input
-                  type="text"
-                  placeholder="Buscar herramientas, documentos. . ."
-                  className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition duration-150 ease-in-out"
-                />
-              </div>
             </div>
 
             {/* Right Side Actions */}
@@ -218,7 +182,6 @@ const Dashboard: React.FC = () => {
         {mobileMenuOpen && (
           <div className="md:hidden bg-white border-b border-slate-200">
             <div className="px-4 py-3 space-y-1">
-              {/* Simplified Mobile Menu */}
               <div className="p-3">
                 <p className="text-slate-500 text-sm">Menú</p>
               </div>
@@ -228,90 +191,24 @@ const Dashboard: React.FC = () => {
       </header>
 
       {/* Main Content */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
-            Bienvenido al Portal Noval
-          </h1>
-          <p className="text-slate-500 mt-1">Accede a todas tus herramientas de gestión desde un solo lugar.</p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-
-          {/* Left Column: Apps Grid */}
-          <div className="lg:col-span-2 space-y-8">
-            <section>
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg font-bold text-slate-800 flex items-center">
-                  <Briefcase className="w-5 h-5 mr-2 text-slate-900" />
-                  Aplicaciones Disponibles
-                </h2>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {apps.map(app => (
-                  <AppCard key={app.id} item={app} />
-                ))}
-              </div>
-            </section>
-
-            {/* Quick Stats / Recent Activity Area (Placeholder) */}
-            <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-              <h3 className="text-lg font-bold text-slate-800 mb-4">Estado del Sistema</h3>
-              <div className="h-48 bg-slate-50 rounded-xl flex items-center justify-center border border-dashed border-slate-300">
-                <p className="text-slate-400 text-sm font-medium">Todos los sistemas operativos</p>
-              </div>
-            </section>
-          </div>
-
-          {/* Right Column: Sidebar */}
-          <div className="lg:col-span-1 space-y-6">
-
-            {/* System Alerts */}
-            <SidebarWidget title="Noticias y Alertas" icon={<Bell className="w-5 h-5" />}>
-              <div className="space-y-4">
-                {alerts.map((alert) => (
-                  <div key={alert.id} className="flex items-start space-x-3 pb-3 border-b border-slate-50 last:border-0 last:pb-0">
-                    <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${alert.type === 'urgent' ? 'bg-red-500 shadow-red-200 shadow-md animate-pulse' :
-                        alert.type === 'success' ? 'bg-emerald-500' : 'bg-blue-500'
-                      }`} />
-                    <div>
-                      <p className="text-sm font-medium text-slate-700 leading-snug hover:text-slate-900 cursor-pointer transition-colors">
-                        {alert.title}
-                      </p>
-                      <p className="text-xs text-slate-400 mt-1">{alert.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </SidebarWidget>
-
-            {/* Quick Docs */}
-            <SidebarWidget title="Documentación" icon={<FileText className="w-5 h-5" />}>
-              <div className="space-y-3">
-                {docs.map((doc, idx) => (
-                  <div key={idx} className="group flex items-center justify-between p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer border border-transparent hover:border-slate-100">
-                    <div className="flex items-center space-x-3">
-                      <div className="p-2 bg-slate-50 text-slate-600 rounded-lg group-hover:bg-amber-50 group-hover:text-amber-600 transition-colors">
-                        <FileText className="w-4 h-4" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-medium text-slate-700 group-hover:text-amber-700 transition-colors">{doc.title}</p>
-                        <p className="text-xs text-slate-400">{doc.size} • PDF</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <button className="w-full mt-4 text-xs font-bold text-amber-600 hover:text-amber-700 text-center uppercase tracking-wide py-2">
-                Ver Todos los Documentos
-              </button>
-            </SidebarWidget>
-
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex items-center justify-center">
+        <div className="w-full">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            {apps.map(app => (
+              <AppCard key={app.id} item={app} />
+            ))}
           </div>
         </div>
       </main>
+
+      {/* Footer */}
+      <footer className="bg-white border-t border-slate-200 py-6 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <p className="text-slate-400 text-xs font-bold tracking-widest">
+            POWER BI QTC-SOLUITIONS COPYRIGHT 2026
+          </p>
+        </div>
+      </footer>
     </div>
   );
 };
