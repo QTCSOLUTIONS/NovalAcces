@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Menu,
   X,
+  QrCode, // <-- Nuevo icono añadido
 } from 'lucide-react';
 
 // --- Types ---
@@ -30,7 +31,6 @@ const NovalLogo: React.FC<{ size?: 'small' | 'large' }> = ({ size = 'large' }) =
 
   return (
     <div className="flex flex-col items-center justify-center group cursor-pointer mt-1">
-      {/* Icono de Regla Original (Adaptado a colores claros) */}
       <div className={`${isLarge ? 'w-16 h-8' : 'w-10 h-5'} border-2 border-white rounded-sm flex flex-col justify-end items-center relative mb-1 group-hover:border-indigo-400 group-hover:shadow-[0_0_15px_rgba(99,102,241,0.5)] transition-all duration-300`}>
         <div className="w-full flex justify-around items-end h-full pb-0.5">
           <div className="h-2 w-px bg-white group-hover:bg-indigo-400 transition-colors duration-300"></div>
@@ -41,7 +41,6 @@ const NovalLogo: React.FC<{ size?: 'small' | 'large' }> = ({ size = 'large' }) =
         </div>
       </div>
 
-      {/* Texto Original */}
       <div className="text-center leading-none">
         <h1 className={`${isLarge ? 'text-4xl' : 'text-xl'} font-bold tracking-tight text-white group-hover:text-indigo-50 transition-colors duration-300`}>NOVAL</h1>
         <p className={`${isLarge ? 'text-sm' : 'text-[0.6rem]'} tracking-[0.2em] font-light text-indigo-400 uppercase italic`}>PROPERTIES</p>
@@ -50,7 +49,7 @@ const NovalLogo: React.FC<{ size?: 'small' | 'large' }> = ({ size = 'large' }) =
   );
 };
 
-// 2. Tarjetas de Aplicación con Animación de Entrada
+// 2. Tarjetas de Aplicación
 const AppCard: React.FC<{ item: AppItem; index: number }> = ({ item, index }) => {
   const CardContent = (
     <div className={`relative h-full p-6 rounded-3xl border transition-all duration-500 overflow-hidden ${
@@ -107,10 +106,7 @@ const AppCard: React.FC<{ item: AppItem; index: number }> = ({ item, index }) =>
   };
 
   return (
-    <div 
-      className="card-entrance" 
-      style={{ animationDelay: `${index * 100}ms` }}
-    >
+    <div className="card-entrance" style={{ animationDelay: `${index * 100}ms` }}>
       <Wrapper {...(wrapperProps as any)} className={item.disabled ? "relative h-full transition-all duration-500 cursor-not-allowed" : wrapperProps.className}>
         {!item.disabled && (
           <div className="absolute inset-4 rounded-3xl bg-indigo-500/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -121,10 +117,11 @@ const AppCard: React.FC<{ item: AppItem; index: number }> = ({ item, index }) =>
   );
 };
 
-// 3. Componente Principal del Dashboard
+// 3. Componente Principal
 const Dashboard: React.FC = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false); // <-- Estado para el Modal QR
 
   useEffect(() => {
     setIsLoaded(true);
@@ -168,15 +165,28 @@ const Dashboard: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#0a0c10] text-white flex flex-col selection:bg-indigo-500/30 overflow-x-hidden font-sans">
       
-      {/* Estilos CSS Inyectados para la animación de entrada */}
       <style dangerouslySetInnerHTML={{__html: `
         @keyframes fadeInUp {
           from { opacity: 0; transform: translateY(30px); }
           to { opacity: 1; transform: translateY(0); }
         }
+        @keyframes modalFadeIn {
+          from { opacity: 0; backdrop-filter: blur(0px); }
+          to { opacity: 1; backdrop-filter: blur(12px); }
+        }
+        @keyframes modalScaleIn {
+          from { opacity: 0; transform: scale(0.95) translateY(10px); }
+          to { opacity: 1; transform: scale(1) translateY(0); }
+        }
         .card-entrance {
           opacity: 0;
           animation: fadeInUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        .modal-overlay {
+          animation: modalFadeIn 0.3s ease-out forwards;
+        }
+        .modal-content {
+          animation: modalScaleIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
       `}} />
 
@@ -186,12 +196,23 @@ const Dashboard: React.FC = () => {
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-purple-500/5 blur-[120px] rounded-full" />
       </div>
 
-      {/* Header Compacto */}
+      {/* Header Compacto con Botón QR */}
       <header className="relative z-30 border-b border-white/5 bg-[#0a0c10]/60 backdrop-blur-xl">
         <div className="max-w-6xl mx-auto px-6">
           <div className="flex justify-between items-center h-16">
             <NovalLogo size="small" />
             
+            <div className="hidden md:flex items-center">
+              {/* Botón Acceso Móvil */}
+              <button 
+                onClick={() => setQrModalOpen(true)}
+                className="flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 hover:border-indigo-500/50 transition-all duration-300 group shadow-lg"
+              >
+                <QrCode className="w-4 h-4 text-indigo-400 group-hover:text-indigo-300" />
+                <span className="text-[10px] font-bold tracking-widest text-gray-300 group-hover:text-white uppercase">Acceso Móvil</span>
+              </button>
+            </div>
+
             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 text-white">
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -199,7 +220,7 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      {/* Main Content Compacto */}
+      {/* Main Content */}
       <main className="relative z-10 flex-1 max-w-5xl w-full mx-auto px-6 py-8 flex flex-col justify-center">
         <div className={`mb-8 space-y-3 transition-all duration-1000 ${isLoaded ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
@@ -217,7 +238,6 @@ const Dashboard: React.FC = () => {
           </p>
         </div>
 
-        {/* Grid Ajustado */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-5 lg:gap-6">
           {apps.map((app, index) => (
             <AppCard key={app.id} item={app} index={index} />
@@ -225,7 +245,7 @@ const Dashboard: React.FC = () => {
         </div>
       </main>
 
-      {/* Footer Compacto */}
+      {/* Footer */}
       <footer className="relative z-10 border-t border-white/5 py-6 bg-black/20 mt-auto">
         <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-4">
           <p className="text-[8px] text-gray-600 font-bold tracking-[0.4em] uppercase">
@@ -237,6 +257,67 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
       </footer>
+
+      {/* Modal del Código QR */}
+      {qrModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          {/* Fondo oscuro desenfocado */}
+          <div 
+            className="absolute inset-0 bg-[#0a0c10]/80 modal-overlay"
+            onClick={() => setQrModalOpen(false)}
+          />
+          
+          {/* Caja del Modal */}
+          <div className="relative bg-[#13161c] border border-white/10 p-8 rounded-[2rem] max-w-sm w-full shadow-2xl shadow-indigo-500/20 modal-content overflow-hidden">
+            {/* Efecto de luz interno */}
+            <div className="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/20 blur-3xl rounded-full pointer-events-none" />
+            
+            <button 
+              onClick={() => setQrModalOpen(false)} 
+              className="absolute top-5 right-5 w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white transition-colors"
+            >
+              <X size={16} />
+            </button>
+
+            <div className="text-center relative z-10 mt-2">
+              <div className="w-12 h-12 bg-indigo-500/10 text-indigo-400 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-indigo-500/20">
+                <QrCode size={24} />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-2 tracking-tight">Lleva el Hub contigo</h3>
+              <p className="text-sm text-gray-400 mb-8 font-light leading-relaxed">
+                Escanea este código con la cámara de tu móvil para acceder al ecosistema de Noval Properties desde cualquier lugar.
+              </p>
+              
+              {/* Contenedor del QR Code visual */}
+              <div className="bg-white p-4 rounded-3xl mx-auto w-48 h-48 shadow-lg shadow-black/50 transform hover:scale-105 transition-transform duration-300">
+                {/* SVG Simulando un QR (Aquí puedes reemplazarlo por un <QRCode /> real en el futuro) */}
+                <svg viewBox="0 0 100 100" className="w-full h-full text-[#0a0c10]">
+                  <path fill="currentColor" d="M0,0 h30 v30 h-30 z M5,5 h20 v20 h-20 z M10,10 h10 v10 h-10 z" />
+                  <path fill="currentColor" d="M70,0 h30 v30 h-30 z M75,5 h20 v20 h-20 z M80,10 h10 v10 h-10 z" />
+                  <path fill="currentColor" d="M0,70 h30 v30 h-30 z M5,75 h20 v20 h-20 z M10,80 h10 v10 h-10 z" />
+                  {/* Patrones interiores abstractos simulando QR */}
+                  <rect x="40" y="0" width="10" height="10" fill="currentColor"/>
+                  <rect x="55" y="0" width="10" height="20" fill="currentColor"/>
+                  <rect x="40" y="20" width="25" height="10" fill="currentColor"/>
+                  <rect x="0" y="40" width="20" height="10" fill="currentColor"/>
+                  <rect x="30" y="40" width="10" height="25" fill="currentColor"/>
+                  <rect x="50" y="40" width="20" height="10" fill="currentColor"/>
+                  <rect x="80" y="40" width="20" height="10" fill="currentColor"/>
+                  <rect x="45" y="60" width="25" height="10" fill="currentColor"/>
+                  <rect x="80" y="60" width="20" height="20" fill="currentColor"/>
+                  <rect x="40" y="80" width="10" height="20" fill="currentColor"/>
+                  <rect x="60" y="80" width="40" height="10" fill="currentColor"/>
+                  <rect x="70" y="90" width="10" height="10" fill="currentColor"/>
+                </svg>
+              </div>
+
+              <div className="mt-6 text-[10px] text-gray-500 uppercase tracking-widest font-bold">
+                noval-acces.vercel.app
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
