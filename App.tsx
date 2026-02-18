@@ -1,16 +1,16 @@
 import React, { useState, useEffect } from 'react';
-import { 
+import {
   Ruler, // New icon for the logo
-  User, 
-  Lock, 
-  Loader2, 
-  Car, 
-  ClipboardCheck, 
-  Package, 
-  Briefcase, 
-  Bell, 
-  FileText, 
-  LogOut, 
+  User,
+  Lock,
+  Loader2,
+  Car,
+  ClipboardCheck,
+  Package,
+  Briefcase,
+  Bell,
+  FileText,
+  LogOut,
   Search,
   ChevronRight,
   Menu,
@@ -33,6 +33,8 @@ interface AppItem {
   icon: React.ReactNode;
   colorClass: string;
   gradient: string;
+  url?: string;
+  disabled?: boolean;
 }
 
 interface AlertItem {
@@ -47,20 +49,20 @@ interface AlertItem {
 // Componente de Logo Reutilizable para mantener consistencia
 const NovalLogo: React.FC<{ size?: 'small' | 'large' }> = ({ size = 'large' }) => {
   const isLarge = size === 'large';
-  
+
   return (
     <div className="flex flex-col items-center justify-center text-slate-900">
       {/* Icono de Regla (simulando el logo) */}
       <div className={`${isLarge ? 'w-16 h-8' : 'w-10 h-5'} border-2 border-slate-900 rounded-sm flex flex-col justify-end items-center relative mb-1`}>
         <div className="w-full flex justify-around items-end h-full pb-0.5">
-           <div className="h-2 w-px bg-slate-900"></div>
-           <div className="h-1 w-px bg-slate-900"></div>
-           <div className="h-2 w-px bg-slate-900"></div>
-           <div className="h-1 w-px bg-slate-900"></div>
-           <div className="h-2 w-px bg-slate-900"></div>
+          <div className="h-2 w-px bg-slate-900"></div>
+          <div className="h-1 w-px bg-slate-900"></div>
+          <div className="h-2 w-px bg-slate-900"></div>
+          <div className="h-1 w-px bg-slate-900"></div>
+          <div className="h-2 w-px bg-slate-900"></div>
         </div>
       </div>
-      
+
       {/* Texto */}
       <div className="text-center leading-none">
         <h1 className={`${isLarge ? 'text-4xl' : 'text-xl'} font-bold tracking-tight text-slate-900`}>NOVAL</h1>
@@ -78,7 +80,7 @@ const LoginScreen: React.FC<{ onLogin: () => void; isLoading: boolean }> = ({ on
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (username === 'admin' && password === 'admin') {
       onLogin();
     } else {
@@ -160,7 +162,7 @@ const LoginScreen: React.FC<{ onLogin: () => void; isLoading: boolean }> = ({ on
               )}
             </button>
           </form>
-          
+
           <div className="mt-6 text-center">
             <a href="#" className="text-sm text-slate-400 hover:text-slate-900 transition-colors font-medium">¿Olvidaste tus credenciales?</a>
           </div>
@@ -175,27 +177,52 @@ const LoginScreen: React.FC<{ onLogin: () => void; isLoading: boolean }> = ({ on
   );
 };
 
-const AppCard: React.FC<{ item: AppItem }> = ({ item }) => (
-  <div className="group relative bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden">
-    <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${item.gradient} opacity-5 group-hover:opacity-10 rounded-bl-full transition-opacity`} />
-    
-    <div className="flex items-start justify-between mb-4">
-      <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient} text-white shadow-md`}>
-        {item.icon}
+const AppCard: React.FC<{ item: AppItem }> = ({ item }) => {
+  const CardContent = (
+    <>
+      <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${item.gradient} opacity-5 group-hover:opacity-10 rounded-bl-full transition-opacity`} />
+
+      <div className="flex items-start justify-between mb-4">
+        <div className={`p-3 rounded-xl bg-gradient-to-br ${item.gradient} text-white shadow-md`}>
+          {item.icon}
+        </div>
+        <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
+          {item.disabled ? (
+            <Lock className="w-4 h-4 text-slate-400" />
+          ) : (
+            <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+          )}
+        </div>
       </div>
-      <div className="w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-slate-100 transition-colors">
-        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600" />
+
+      <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-slate-900">{item.title}</h3>
+      <p className="text-sm text-slate-500 leading-relaxed mb-4">{item.description}</p>
+
+      <div className={`flex items-center text-xs font-semibold text-slate-400 ${!item.disabled && 'group-hover:text-amber-600'} transition-colors`}>
+        <span>{item.disabled ? 'EN DESARROLLO' : 'ABRIR APLICACIÓN'}</span>
       </div>
-    </div>
-    
-    <h3 className="text-lg font-bold text-slate-800 mb-2 group-hover:text-slate-900">{item.title}</h3>
-    <p className="text-sm text-slate-500 leading-relaxed mb-4">{item.description}</p>
-    
-    <div className="flex items-center text-xs font-semibold text-slate-400 group-hover:text-amber-600 transition-colors">
-      <span>ABRIR APLICACIÓN</span>
-    </div>
-  </div>
-);
+    </>
+  );
+
+  if (item.disabled) {
+    return (
+      <div className="group relative bg-slate-50 rounded-2xl p-6 shadow-sm border border-slate-200 opacity-60 cursor-not-allowed overflow-hidden grayscale-[0.8]">
+        {CardContent}
+      </div>
+    );
+  }
+
+  return (
+    <a
+      href={item.url}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="group relative block bg-white rounded-2xl p-6 shadow-sm border border-slate-200 hover:shadow-xl hover:shadow-slate-200/50 transition-all duration-300 hover:-translate-y-1 cursor-pointer overflow-hidden"
+    >
+      {CardContent}
+    </a>
+  );
+};
 
 const SidebarWidget: React.FC<{ title: string; icon: React.ReactNode; children: React.ReactNode }> = ({ title, icon, children }) => (
   <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
@@ -217,7 +244,8 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
       description: 'Sistema de gestión de flotas. Programa mantenimiento, rastrea ubicación de vehículos y gestiona reservas.',
       icon: <Car className="w-6 h-6" />,
       colorClass: 'text-cyan-600',
-      gradient: 'from-cyan-600 to-blue-700'
+      gradient: 'from-cyan-600 to-blue-700',
+      disabled: true
     },
     {
       id: 'novaudit',
@@ -225,7 +253,8 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
       description: 'Herramientas de auditoría técnica y cumplimiento para inspecciones de propiedades y controles de seguridad.',
       icon: <ClipboardCheck className="w-6 h-6" />,
       colorClass: 'text-indigo-600',
-      gradient: 'from-indigo-600 to-violet-700'
+      gradient: 'from-indigo-600 to-violet-700',
+      url: 'https://controlpro-iota.vercel.app/'
     },
     {
       id: 'novalog',
@@ -233,7 +262,8 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
       description: 'Control de almacén e inventario. Rastreo de stock en tiempo real para materiales de construcción.',
       icon: <Package className="w-6 h-6" />,
       colorClass: 'text-slate-600',
-      gradient: 'from-slate-600 to-slate-800'
+      gradient: 'from-slate-600 to-slate-800',
+      url: 'https://gestionalmacen.qtc-solutions.com'
     },
     {
       id: 'novalworks',
@@ -241,7 +271,8 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
       description: 'Suite de gestión de proyectos. Diagramas de Gantt, asignación de recursos y seguimiento de cronogramas.',
       icon: <Briefcase className="w-6 h-6" />,
       colorClass: 'text-emerald-600',
-      gradient: 'from-emerald-600 to-teal-700'
+      gradient: 'from-emerald-600 to-teal-700',
+      url: 'https://timegest.qtc-solutions.com/auth'
     },
   ];
 
@@ -270,16 +301,16 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
 
             {/* Desktop Navigation */}
             <div className="hidden md:flex flex-1 items-center justify-center px-8">
-               <div className="relative w-full max-w-md">
-                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                   <Search className="h-4 w-4 text-slate-400" />
-                 </div>
-                 <input 
-                    type="text" 
-                    placeholder="Buscar herramientas, documentos o personas..." 
-                    className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition duration-150 ease-in-out"
-                 />
-               </div>
+              <div className="relative w-full max-w-md">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <Search className="h-4 w-4 text-slate-400" />
+                </div>
+                <input
+                  type="text"
+                  placeholder="Buscar herramientas, documentos o personas..."
+                  className="block w-full pl-10 pr-3 py-2 border border-slate-200 rounded-lg leading-5 bg-slate-50 placeholder-slate-400 focus:outline-none focus:bg-white focus:ring-1 focus:ring-amber-500 focus:border-amber-500 sm:text-sm transition duration-150 ease-in-out"
+                />
+              </div>
             </div>
 
             {/* Right Side Actions */}
@@ -295,7 +326,7 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
                   <p className="text-xs text-slate-500">{user.role}</p>
                 </div>
                 <img src={user.avatarUrl} alt="Perfil" className="h-9 w-9 rounded-full ring-2 ring-slate-100" />
-                <button 
+                <button
                   onClick={onLogout}
                   className="p-2 text-slate-400 hover:text-red-500 transition-colors"
                   title="Cerrar Sesión"
@@ -336,7 +367,7 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
 
       {/* Main Content */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        
+
         {/* Welcome Section */}
         <div className="mb-8">
           <h1 className="text-2xl sm:text-3xl font-bold text-slate-900">
@@ -346,7 +377,7 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Left Column: Apps Grid */}
           <div className="lg:col-span-2 space-y-8">
             <section>
@@ -362,28 +393,27 @@ const Dashboard: React.FC<{ user: UserProfile; onLogout: () => void }> = ({ user
                 ))}
               </div>
             </section>
-            
+
             {/* Quick Stats / Recent Activity Area (Placeholder) */}
             <section className="bg-white rounded-2xl shadow-sm border border-slate-200 p-6">
-                <h3 className="text-lg font-bold text-slate-800 mb-4">Resumen Semanal</h3>
-                <div className="h-48 bg-slate-50 rounded-xl flex items-center justify-center border border-dashed border-slate-300">
-                    <p className="text-slate-400 text-sm font-medium">Visualización del Gráfico de Actividad</p>
-                </div>
+              <h3 className="text-lg font-bold text-slate-800 mb-4">Resumen Semanal</h3>
+              <div className="h-48 bg-slate-50 rounded-xl flex items-center justify-center border border-dashed border-slate-300">
+                <p className="text-slate-400 text-sm font-medium">Visualización del Gráfico de Actividad</p>
+              </div>
             </section>
           </div>
 
           {/* Right Column: Sidebar */}
           <div className="lg:col-span-1 space-y-6">
-            
+
             {/* System Alerts */}
             <SidebarWidget title="Alertas del Sistema" icon={<Bell className="w-5 h-5" />}>
               <div className="space-y-4">
                 {alerts.map((alert) => (
                   <div key={alert.id} className="flex items-start space-x-3 pb-3 border-b border-slate-50 last:border-0 last:pb-0">
-                    <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${
-                      alert.type === 'urgent' ? 'bg-red-500 shadow-red-200 shadow-md animate-pulse' : 
+                    <div className={`mt-1.5 w-2 h-2 rounded-full flex-shrink-0 ${alert.type === 'urgent' ? 'bg-red-500 shadow-red-200 shadow-md animate-pulse' :
                       alert.type === 'success' ? 'bg-emerald-500' : 'bg-blue-500'
-                    }`} />
+                      }`} />
                     <div>
                       <p className="text-sm font-medium text-slate-700 leading-snug hover:text-slate-900 cursor-pointer transition-colors">
                         {alert.title}
